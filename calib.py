@@ -41,19 +41,20 @@ class EMP:
         self.a = numpy.zeros((self.n_bins, k))
         bins = numpy.linspace(0, 1, self.n_bins + 1)
         for i in range(0, k):
-            self.a[:, i] = (numpy.sum(((s[:, i] <= bins[1:].reshape(-1, 1)) & (s[:, i] > bins[:-1].reshape(-1, 1))) * \
-                                     y[:, i].reshape(1, -1) , axis=1) + 1)/  \
-                           (numpy.sum(((s[:, i] <= bins[1:].reshape(-1, 1)) & (s[:, i] > bins[:-1].reshape(-1, 1))),
-                                     axis=1) + 2)
-
+            self.a[:, i] = (numpy.sum(((s[:, i] <= bins[1:].reshape(-1, 1)) & (s[:, i] >= bins[:-1].reshape(-1, 1))) * \
+                                     y[:, i].reshape(1, -1), axis=1)) /  \
+                           (numpy.sum(((s[:, i] <= bins[1:].reshape(-1, 1)) & (s[:, i] >= bins[:-1].reshape(-1, 1))),
+                                     axis=1))
 
     def predict_proba(self, s):
         k = numpy.shape(s)[1]
         s_hat = numpy.zeros_like(s)
         bins = numpy.linspace(0, 1, self.n_bins+1)
         for i in range(0, k):
-            s_hat[:, i] = numpy.sum(((s[:, i] <= bins[1:].reshape(-1, 1)) & (s[:, i] > bins[:-1].reshape(-1, 1))) * \
-                          self.a[:, i].reshape(-1, 1), axis=0)
+            tmp_s =((s[:, i] <= bins[1:].reshape(-1, 1)) & (s[:, i] >= bins[:-1].reshape(-1, 1))) * \
+                   self.a[:, i].reshape(-1, 1)
+            tmp_s[numpy.isnan(tmp_s)] = 0.0
+            s_hat[:, i] = numpy.sum(tmp_s, axis=0)
 
         return s_hat / numpy.sum(s_hat, axis=1).reshape(-1, 1)
     
