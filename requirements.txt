@@ -1,0 +1,9 @@
+numpy
+tqdm
+scipy
+matplotlib
+sklearn
+dirichletcal
+jax
+jaxlib
+autograd
